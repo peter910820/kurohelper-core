@@ -34,7 +34,7 @@ func main() {
 	failed := false
 	for _, c := range commits {
 		c = strings.TrimSpace(c)
-		if c == "" {
+		if c == "" || c == strings.TrimSpace("Initial commit") {
 			continue
 		}
 		if strings.HasPrefix(c, "Merge") {
