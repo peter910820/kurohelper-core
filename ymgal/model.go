@@ -29,6 +29,12 @@ type (
 )
 
 type (
+	SearchGameResp struct {
+		Game       Game       `json:"game"`
+		CidMapping CidMapping `json:"cidMapping"`
+		PidMapping PidMapping `json:"pidMapping"`
+	}
+
 	Game struct {
 		PublishVersion int             `json:"publishVersion"`
 		PublishTime    string          `json:"publishTime"`
@@ -48,10 +54,10 @@ type (
 		ReleaseDate    string          `json:"releaseDate"`
 		Restricted     bool            `json:"restricted"`
 		Country        string          `json:"country"`
-		Website        []WebsiteItem   `json:"website"`
-		Characters     []CharacterRef  `json:"characters"`
+		Website        []Website       `json:"website"`
+		Characters     []Character     `json:"characters"`
 		Releases       []Release       `json:"releases"`
-		Staff          []StaffItem     `json:"staff"`
+		Staff          []Staff         `json:"staff"`
 		Type           string          `json:"type"`
 		Freeze         bool            `json:"freeze"`
 	}
@@ -62,12 +68,12 @@ type (
 		Desc string `json:"desc"`
 	}
 
-	WebsiteItem struct {
+	Website struct {
 		Title string `json:"title"`
 		Link  string `json:"link"`
 	}
 
-	CharacterRef struct {
+	Character struct {
 		Cid               int `json:"cid"`
 		CvId              int `json:"cvId"`
 		CharacterPosition int `json:"characterPosition"`
@@ -83,7 +89,7 @@ type (
 		RestrictionLevel string `json:"restrictionLevel,omitempty"`
 	}
 
-	StaffItem struct {
+	Staff struct {
 		Sid     int    `json:"sid"`
 		Pid     int    `json:"pid"`
 		EmpName string `json:"empName"`
@@ -91,7 +97,7 @@ type (
 		JobName string `json:"jobName"`
 	}
 
-	CidMappingItem struct {
+	CidMapping struct {
 		Cid         int    `json:"cid"`
 		Name        string `json:"name"`
 		ChineseName string `json:"chineseName,omitempty"`
@@ -100,7 +106,7 @@ type (
 		Freeze      bool   `json:"freeze"`
 	}
 
-	PidMappingItem struct {
+	PidMapping struct {
 		Pid         int    `json:"pid"`
 		Name        string `json:"name"`
 		ChineseName string `json:"chineseName,omitempty"`
