@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 
 	kurohelpercore "github.com/peter910820/kurohelper-core"
 )
@@ -15,7 +14,11 @@ var token tokenResp
 
 // 取得Token
 func GetToken() error {
-	req, err := http.NewRequest(http.MethodGet, os.Getenv("YMGAL_ENDPOINT")+fmt.Sprintf("/oauth/token?grant_type=client_credentials&client_id=%s&client_secret=%s&scope=public", os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET")), nil)
+	if kurohelpercore.IsValidURL(cfg.Endpoint) {
+		return ErrCfgInvalid
+	}
+
+	req, err := http.NewRequest(http.MethodGet, cfg.Endpoint+fmt.Sprintf("/oauth/token?grant_type=client_credentials&client_id=%s&client_secret=%s&scope=public", cfg.ClientID, cfg.ClientSecret), nil)
 	if err != nil {
 		return err
 	}
