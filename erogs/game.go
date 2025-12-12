@@ -25,7 +25,6 @@ func GetGameByFuzzy(search string, idSearch bool) (*FuzzySearchGameResponse, err
 	var res FuzzySearchGameResponse
 	err = json.Unmarshal([]byte(jsonText), &res)
 	if err != nil {
-		fmt.Println(jsonText)
 		return nil, err
 	}
 

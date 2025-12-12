@@ -14,7 +14,7 @@ import (
 func sendWithRetry(apiRoute string) ([]byte, error) {
 	r, err := sendGetRequest(apiRoute)
 	if err != nil {
-		if errors.Is(err, kurohelpercore.ErrYmgalInvalidAccessToken) {
+		if errors.Is(err, ErrInvalidAccessToken) {
 			logrus.Warnf("%s, refreshing and retrying...", err)
 			err = GetToken()
 			if err != nil {
@@ -40,7 +40,6 @@ func sendGetRequest(apiRoute string) ([]byte, error) {
 		return nil, err
 	}
 
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0")
 	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
 	req.Header.Set("version", "1")
 
@@ -53,7 +52,7 @@ func sendGetRequest(apiRoute string) ([]byte, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 401 {
-		return nil, kurohelpercore.ErrYmgalInvalidAccessToken
+		return nil, ErrInvalidAccessToken
 	}
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("%w %d", kurohelpercore.ErrStatusCodeAbnormal, resp.StatusCode)
