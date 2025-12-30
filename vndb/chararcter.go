@@ -113,7 +113,7 @@ func GetCharacterByID(keyword string) (*CharacterSearchResponse, error) {
 }
 
 // 取得VNDB隨機角色
-func GetRandomCharacter() (*CharacterSearchResponse, error) {
+func GetRandomCharacter(opt string) (*CharacterSearchResponse, error) {
 	reqCharacter := VndbCreate() // 建立基本request結構
 
 	// 不需要排序
@@ -123,6 +123,17 @@ func GetRandomCharacter() (*CharacterSearchResponse, error) {
 	// 限制回傳一筆結果
 	reqCharacterResults := 1
 	reqCharacter.Results = &reqCharacterResults
+
+	// 根據角色身分過濾結果
+	reqCharacter.Filters = append(reqCharacter.Filters, "and")
+	switch opt {
+	case "":
+		fallthrough
+	case "1":
+		reqCharacter.Filters = append(reqCharacter.Filters, []any{"or", []any{"role", "=", "main"}, []any{"role", "=", "primary"}}) // 主角
+	case "2":
+		reqCharacter.Filters = append(reqCharacter.Filters, []any{"or", []any{"role", "=", "side"}, []any{"role", "=", "appear"}}) // 配角
+	}
 
 	// 指定要取得的欄位
 	basicFields := "id, name, original, aliases, description, image.url, blood_type, height, weight, bust, waist, hips, cup, age, birthday, sex, gender"
@@ -142,7 +153,7 @@ func GetRandomCharacter() (*CharacterSearchResponse, error) {
 	var randomCharacterID string
 	for {
 		randomCharacterID = fmt.Sprintf("c%d", rand.Intn(resStat.Chars))
-		reqCharacter.Filters = []any{"and", []any{"id", ">=", randomCharacterID}, []any{"vn", "=", []any{"votecount", ">=", "100"}}}
+		reqCharacter.Filters = append(reqCharacter.Filters, []any{"and", []any{"id", ">=", randomCharacterID}, []any{"vn", "=", []any{"votecount", ">=", "100"}}})
 
 		jsonCharacter, err := json.Marshal(reqCharacter)
 		if err != nil {
