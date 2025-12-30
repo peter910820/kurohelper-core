@@ -23,7 +23,7 @@ func GetVNByFuzzy(keyword string) (*BasicResponse[GetVnUseIDResponse], error) {
 
 	// 指定要取得的欄位
 	titleFields := "title, alttitle"
-	imageFields := "image.url"
+	imageFields := "image.url, image.sexual, image.violence"
 	developersFields := "developers.name, developers.original, developers.aliases"
 	nameFields := "titles.lang, titles.title, titles.official, titles.main"
 	staffFields := "staff.name, staff.role, staff.aliases.name, staff.aliases.ismain"
@@ -85,7 +85,7 @@ func GetVNByID(id string) (*BasicResponse[GetVnUseIDResponse], error) {
 
 	// 指定要取得的欄位
 	titleFields := "title, alttitle"
-	imageFields := "image.url"
+	imageFields := "image.url, image.sexual, image.violence"
 	developersFields := "developers.name, developers.original, developers.aliases"
 	nameFields := "titles.lang, titles.title, titles.official, titles.main"
 	staffFields := "staff.name, staff.role, staff.aliases.name, staff.aliases.ismain"
@@ -153,7 +153,7 @@ func GetRandomVN() (*BasicResponse[GetVnUseIDResponse], error) {
 
 	// 指定要取得的欄位
 	titleFields := "title, alttitle"
-	imageFields := "image.url"
+	imageFields := "image.url, image.sexual, image.violence"
 	developersFields := "developers.name, developers.original, developers.aliases"
 	nameFields := "titles.lang, titles.title, titles.official, titles.main"
 	staffFields := "staff.name, staff.role, staff.aliases.name, staff.aliases.ismain"
