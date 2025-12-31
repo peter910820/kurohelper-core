@@ -3,6 +3,8 @@ package kurohelpercore
 import (
 	"net/url"
 	"strings"
+
+	"github.com/peter910820/kurohelper-core/store"
 )
 
 // check if the string is English
@@ -40,4 +42,14 @@ func IsValidURL(rawURL string) bool {
 	}
 
 	return true
+}
+
+func ZhTwToJp(search string) string {
+	runes := []rune(search)
+	for i, r := range runes {
+		if jp, ok := store.ZhtwToJp[r]; ok {
+			runes[i] = jp
+		}
+	}
+	return string(runes)
 }

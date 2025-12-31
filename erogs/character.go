@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/peter910820/kurohelper-core/cache"
+	kurohelpercore "github.com/peter910820/kurohelper-core"
 )
 
 func GetCharacterByFuzzy(search string, idSearch bool) (*FuzzySearchCharacterResponse, error) {
 	searchJP := ""
 	if !idSearch {
-		searchJP = cache.ZhTwToJp(search)
+		searchJP = kurohelpercore.ZhTwToJp(search)
 	}
 	sql, err := buildFuzzySearchCharacterSQL(search, searchJP, idSearch)
 	if err != nil {
@@ -32,7 +32,7 @@ func GetCharacterByFuzzy(search string, idSearch bool) (*FuzzySearchCharacterRes
 }
 
 func GetCharacterListByFuzzy(search string) (*[]FuzzySearchListResponse, error) {
-	searchJP := cache.ZhTwToJp(search)
+	searchJP := kurohelpercore.ZhTwToJp(search)
 	sql, err := buildFuzzySearchCharacterListSQL(search, searchJP)
 	if err != nil {
 		return nil, err

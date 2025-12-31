@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/peter910820/kurohelper-core/cache"
+	"github.com/peter910820/kurohelper-core/store"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -46,7 +46,7 @@ var (
 
 func GetGuideURL(keyword string) string {
 	// 優先抓建檔的
-	correspondURL, ok := cache.SeiyaCorrespond[keyword]
+	correspondURL, ok := store.SeiyaCorrespond[keyword]
 	if ok {
 		return correspondURL
 	}

@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/peter910820/kurohelper-core/cache"
+	kurohelpercore "github.com/peter910820/kurohelper-core"
 )
 
 func GetMusicByFuzzy(search string, idSearch bool) (*FuzzySearchMusicResponse, error) {
 	searchJP := ""
 	if !idSearch {
-		searchJP = cache.ZhTwToJp(search)
+		searchJP = kurohelpercore.ZhTwToJp(search)
 	}
 	sql, err := buildFuzzySearchMusicSQL(search, searchJP, idSearch)
 	if err != nil {
@@ -33,7 +33,7 @@ func GetMusicByFuzzy(search string, idSearch bool) (*FuzzySearchMusicResponse, e
 }
 
 func GetMusicListByFuzzy(search string) (*[]FuzzySearchListResponse, error) {
-	searchJP := cache.ZhTwToJp(search)
+	searchJP := kurohelpercore.ZhTwToJp(search)
 	sql, err := buildFuzzySearchMusicListSQL(search, searchJP)
 	if err != nil {
 		return nil, err

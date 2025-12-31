@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/peter910820/kurohelper-core/cache"
+	kurohelpercore "github.com/peter910820/kurohelper-core"
 )
 
 func GetBrandByFuzzy(search string) (*FuzzySearchBrandResponse, error) {
-	searchJP := cache.ZhTwToJp(search)
+	searchJP := kurohelpercore.ZhTwToJp(search)
 	sql, err := buildFuzzySearchBrandSQL(search, searchJP)
 	if err != nil {
 		return nil, err
