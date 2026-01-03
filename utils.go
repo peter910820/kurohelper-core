@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/peter910820/kurohelper-core/store"
+	"github.com/kuro-helper/core/v2/store"
 )
 
 // check if the string is English

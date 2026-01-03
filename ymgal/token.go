@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/http"
 
-	kurohelpercore "github.com/peter910820/kurohelper-core"
+	kurohelpercore "github.com/kuro-helper/core/v2"
 )
 
 // token
