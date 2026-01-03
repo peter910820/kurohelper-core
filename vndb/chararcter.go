@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	kurohelpercore "github.com/peter910820/kurohelper-core"
+	kurohelpercore "github.com/kuro-helper/core/v2"
 )
 
 // 取得VNDB角色(模糊搜尋)

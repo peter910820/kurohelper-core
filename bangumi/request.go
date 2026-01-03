@@ -8,7 +8,7 @@ import (
 
 	"os"
 
-	kurohelpercore "github.com/peter910820/kurohelper-core"
+	kurohelpercore "github.com/kuro-helper/core/v2"
 )
 
 func sendPostRequest(apiRoute string, jsonBytes []byte) ([]byte, error) {
