@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/kuro-helper/proxy"
 
 	kurohelpercore "github.com/kuro-helper/core/v2"
 )
@@ -51,7 +52,36 @@ func sendPostRequest(sql string) (string, error) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0")
 
-	client := &http.Client{}
+	var client *http.Client
+	if os.Getenv("PROXY_USE") == "private" {
+		dialer, err := proxy.GetProxyDialer(os.Getenv("PROXY_PRIVATE_IP"), nil, os.Getenv("PROXY_PRIVATE_PORT"))
+		if err != nil {
+			fmt.Print(err)
+			return "", err
+		}
+		client = &http.Client{
+			Transport: &http.Transport{
+				Dial: dialer.Dial,
+			},
+			Timeout: 10 * time.Second,
+		}
+	} else if os.Getenv("PROXY_USE") == "vpn" {
+		proxyAuth := proxy.GenerateProxyAuth(os.Getenv("PROXY_AUTH_USER"), os.Getenv("PROXY_AUTH_PASSWORD"))
+		dialer, err := proxy.GetProxyDialer(os.Getenv("PROXY_ADDRESS"), proxyAuth, os.Getenv("PROXY_PORT"))
+		if err != nil {
+			fmt.Print(err)
+			return "", err
+		}
+		client = &http.Client{
+			Transport: &http.Transport{
+				Dial: dialer.Dial,
+			},
+			Timeout: 15 * time.Second,
+		}
+	} else {
+		client = &http.Client{}
+	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
