@@ -125,7 +125,7 @@ func GetRandomCharacter(opt string) (*CharacterSearchResponse, error) {
 	reqCharacter.Results = &reqCharacterResults
 
 	// 根據角色身分過濾結果
-	reqCharacter.Filters = []any{"and", []any{"vn", "=", []any{"votecount", ">=", "50"}}}
+	reqCharacter.Filters = []any{"and", []any{"vn", "=", []any{"and", []any{"votecount", ">=", "30"}, []any{"rating", ">=", "70"}}}}
 	switch opt {
 	case "":
 		fallthrough
@@ -151,7 +151,7 @@ func GetRandomCharacter(opt string) (*CharacterSearchResponse, error) {
 	}
 	var resCharacters BasicResponse[CharacterSearchResponse]
 	var randomCharacterID string
-	for {
+	for range 3 { // 最多嘗試3次
 		randomCharacterID = fmt.Sprintf("c%d", rand.Intn(resStat.Chars))
 		reqCharacter.Filters = append(reqCharacter.Filters, []any{"and", []any{"id", ">=", randomCharacterID}, []any{"vn", "=", []any{"votecount", ">=", "100"}}})
 
@@ -171,16 +171,16 @@ func GetRandomCharacter(opt string) (*CharacterSearchResponse, error) {
 		}
 
 		if len(resCharacters.Results) != 0 {
-			break
+			// 取得角色詳細資料
+			err = GetCharacterDetail(resCharacters.Results[0].ID, &resCharacters)
+			if err != nil {
+				return nil, err
+			}
+
+			return &resCharacters.Results[0], nil
 		}
 	}
-	// 取得角色詳細資料
-	err = GetCharacterDetail(resCharacters.Results[0].ID, &resCharacters)
-	if err != nil {
-		return nil, err
-	}
-
-	return &resCharacters.Results[0], nil
+	return nil, kurohelpercore.ErrSearchNoContent
 }
 
 func GetCharacterDetail(characterID string, resCharacters *BasicResponse[CharacterSearchResponse]) error {

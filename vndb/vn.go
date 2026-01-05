@@ -177,12 +177,12 @@ func GetRandomVN() (*BasicResponse[GetVnUseIDResponse], error) {
 	req.Fields = strings.Join(allFields, ", ")
 
 	var res BasicResponse[GetVnUseIDResponse]
-	for {
+	for range 3 { // 最多嘗試3次
 		// 產生隨機ID
 		randomVNID := fmt.Sprintf("v%d", rand.Intn(resStat.VN))
 
 		// 設定搜尋條件(隨機ID且投票數>=100)
-		req.Filters = []any{"and", []any{"id", ">=", randomVNID}, []any{"votecount", ">=", "50"}}
+		req.Filters = []any{"and", []any{"id", ">=", randomVNID}, []any{"votecount", ">=", "30"}, []any{"rating", ">=", "70"}}
 
 		jsonData, err := json.Marshal(req)
 		if err != nil {
@@ -201,11 +201,10 @@ func GetRandomVN() (*BasicResponse[GetVnUseIDResponse], error) {
 
 		// 如果找到結果就回傳
 		if len(res.Results) > 0 {
-			break
+			return &res, nil
 		}
 	}
-
-	return &res, nil
+	return nil, kurohelpercore.ErrSearchNoContent
 }
 
 // 使用關鍵字搜尋遊戲ID列表(用於列表顯示)
