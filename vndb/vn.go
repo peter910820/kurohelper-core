@@ -182,7 +182,7 @@ func GetRandomVN() (*BasicResponse[GetVnUseIDResponse], error) {
 		randomVNID := fmt.Sprintf("v%d", rand.Intn(resStat.VN))
 
 		// 設定搜尋條件(隨機ID且投票數>=100)
-		req.Filters = []any{"and", []any{"id", ">=", randomVNID}, []any{"votecount", ">=", "50"}}
+		req.Filters = []any{"and", []any{"id", ">=", randomVNID}, []any{"votecount", ">=", "30"}, []any{"rating", ">=", "70"}}
 
 		jsonData, err := json.Marshal(req)
 		if err != nil {

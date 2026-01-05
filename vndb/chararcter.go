@@ -125,7 +125,7 @@ func GetRandomCharacter(opt string) (*CharacterSearchResponse, error) {
 	reqCharacter.Results = &reqCharacterResults
 
 	// 根據角色身分過濾結果
-	reqCharacter.Filters = []any{"and", []any{"vn", "=", []any{"votecount", ">=", "50"}}}
+	reqCharacter.Filters = []any{"and", []any{"vn", "=", []any{"and", []any{"votecount", ">=", "30"}, []any{"rating", ">=", "70"}}}}
 	switch opt {
 	case "":
 		fallthrough
