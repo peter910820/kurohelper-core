@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	kurohelpercore "github.com/kuro-helper/core/v2"
+	kurohelpercore "github.com/kuro-helper/kurohelper-core/v3"
 )
 
 func buildSearchStringSQL(search string) (string, error) {

@@ -3,8 +3,8 @@ package service
 import (
 	"time"
 
-	"github.com/kuro-helper/core/v2/erogs"
-	kurohelperdb "github.com/peter910820/kurohelper-db/v2"
+	"github.com/kuro-helper/kurohelper-core/v3/erogs"
+	kurohelperdb "github.com/kuro-helper/kurohelper-db/v3"
 	"gorm.io/gorm"
 )
 

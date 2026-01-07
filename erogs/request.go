@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/kuro-helper/proxy"
 
-	kurohelpercore "github.com/kuro-helper/core/v2"
+	kurohelpercore "github.com/kuro-helper/kurohelper-core/v3"
+	kurohelperproxy "github.com/kuro-helper/kurohelper-proxy"
 )
 
 type rateLimitStruct struct {
@@ -54,7 +54,7 @@ func sendPostRequest(sql string) (string, error) {
 
 	var client *http.Client
 	if os.Getenv("PROXY_USE") == "private" {
-		dialer, err := proxy.GetProxyDialer(os.Getenv("PROXY_PRIVATE_IP"), nil, os.Getenv("PROXY_PRIVATE_PORT"))
+		dialer, err := kurohelperproxy.GetProxyDialer(os.Getenv("PROXY_PRIVATE_IP"), nil, os.Getenv("PROXY_PRIVATE_PORT"))
 		if err != nil {
 			fmt.Print(err)
 			return "", err
@@ -66,8 +66,8 @@ func sendPostRequest(sql string) (string, error) {
 			Timeout: 10 * time.Second,
 		}
 	} else if os.Getenv("PROXY_USE") == "vpn" {
-		proxyAuth := proxy.GenerateProxyAuth(os.Getenv("PROXY_AUTH_USER"), os.Getenv("PROXY_AUTH_PASSWORD"))
-		dialer, err := proxy.GetProxyDialer(os.Getenv("PROXY_ADDRESS"), proxyAuth, os.Getenv("PROXY_PORT"))
+		proxyAuth := kurohelperproxy.GenerateProxyAuth(os.Getenv("PROXY_AUTH_USER"), os.Getenv("PROXY_AUTH_PASSWORD"))
+		dialer, err := kurohelperproxy.GetProxyDialer(os.Getenv("PROXY_ADDRESS"), proxyAuth, os.Getenv("PROXY_PORT"))
 		if err != nil {
 			fmt.Print(err)
 			return "", err

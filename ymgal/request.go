@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/http"
 
-	kurohelpercore "github.com/kuro-helper/core/v2"
+	kurohelpercore "github.com/kuro-helper/kurohelper-core/v3"
 	"github.com/sirupsen/logrus"
 )
 
