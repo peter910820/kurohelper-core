@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	kurohelpercore "github.com/kuro-helper/core/v2"
+	kurohelpercore "github.com/kuro-helper/kurohelper-core/v3"
 )
 
 func GetStaffByFuzzy(keyword string, roleType string) (*BasicResponse[StaffSearchResponse], error) {

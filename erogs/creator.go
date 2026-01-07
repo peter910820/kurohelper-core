@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	kurohelpercore "github.com/kuro-helper/core/v2"
+	kurohelpercore "github.com/kuro-helper/kurohelper-core/v3"
 )
 
 func GetCreatorByFuzzy(search string, idSearch bool) (*FuzzySearchCreatorResponse, error) {

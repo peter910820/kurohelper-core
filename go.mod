@@ -1,9 +1,10 @@
-module github.com/kuro-helper/core/v2
+module github.com/kuro-helper/kurohelper-core/v3
 
 go 1.24.0
 
 require (
-	github.com/kuro-helper/proxy v0.0.0-20260104092932-28db66382b21
+	github.com/kuro-helper/kurohelper-db/v3 v3.0.0
+	github.com/kuro-helper/kurohelper-proxy v1.0.0
 	github.com/sirupsen/logrus v1.9.3
 	gorm.io/gorm v1.31.1
 )
@@ -23,7 +24,6 @@ require (
 
 require (
 	github.com/PuerkitoBio/goquery v1.11.0
-	github.com/peter910820/kurohelper-db/v2 v2.4.0
 	golang.org/x/sys v0.39.0 // indirect
 	golang.org/x/text v0.32.0
 )
