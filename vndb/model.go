@@ -126,34 +126,48 @@ type GetVnIDUseListResponse struct {
 	Developers []DeveloperResponse `json:"developers"`
 }
 
-// producer Response
-type ProducerSearchResponse struct {
-	Producer BasicResponse[ProducerSearchProducerResponse]
-	Vn       BasicResponse[ProducerSearchVnResponse]
-}
+// 查詢品牌API
+type (
+	// producer Response
+	ProducerSearchResponse struct {
+		Producer BasicResponse[ProducerSearchProducerResponse]
+		Vn       BasicResponse[ProducerSearchVnResponse]
+	}
 
-// 查詢品牌API(Producer)
-type ProducerSearchProducerResponse struct {
-	ID          string             `json:"id"`
-	Name        string             `json:"name"`
-	Original    string             `json:"original"` // *string
-	Aliases     []string           `json:"aliases"`
-	Lang        string             `json:"lang"`
-	Type        string             `json:"type"`
-	Description string             `json:"description"` // *string
-	Extlinks    []ExtlinksResponse `json:"extlinks"`
-}
+	// 品牌結構
+	ProducerSearchProducerResponse struct {
+		ID          string             `json:"id"`
+		Name        string             `json:"name"`
+		Original    string             `json:"original"` // *string
+		Aliases     []string           `json:"aliases"`
+		Lang        string             `json:"lang"`
+		Type        string             `json:"type"`
+		Description string             `json:"description"` // *string
+		Extlinks    []ExtlinksResponse `json:"extlinks"`
+	}
 
-// 查詢品牌API(vn)
-type ProducerSearchVnResponse struct {
-	Title         string  `json:"title"`
-	Alttitle      string  `json:"alttitle"`
-	Average       float64 `json:"average"`
-	Rating        float64 `json:"rating"`
-	Votecount     int     `json:"votecount"`
-	LengthMinutes int     `json:"length_minutes"`
-	LengthVotes   int     `json:"length_votes"`
-}
+	// 遊戲結構
+	ProducerSearchVnResponse struct {
+		Title         string  `json:"title"`
+		Alttitle      string  `json:"alttitle"`
+		Released      *string `json:"released"` // 發售日期，因為vndb不是回傳標準格式，用字串儲存
+		Average       float64 `json:"average"`
+		Rating        float64 `json:"rating"`
+		Votecount     int     `json:"votecount"`
+		LengthMinutes int     `json:"length_minutes"`
+		LengthVotes   int     `json:"length_votes"`
+		Image         Image   `json:"image"`
+	}
+
+	// 遊戲中的圖片結構(只取需要的)
+	//
+	// Sexual跟Violence官方文檔說明是整數，但實測有浮點數出現可能
+	Image struct {
+		Thumbnail string  `json:"thumbnail"`
+		Sexual    float64 `json:"sexual"`
+		Violence  float64 `json:"violence"`
+	}
+)
 
 // staff Response
 //
