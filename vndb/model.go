@@ -148,6 +148,7 @@ type (
 
 	// 遊戲結構
 	ProducerSearchVnResponse struct {
+		ID            string  `json:"id"` // vndbid
 		Title         string  `json:"title"`
 		Alttitle      string  `json:"alttitle"`
 		Released      *string `json:"released"` // 發售日期，因為vndb不是回傳標準格式，用字串儲存

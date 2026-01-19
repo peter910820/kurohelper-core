@@ -65,7 +65,7 @@ func GetProducerByFuzzy(keyword string, companyType string) (*ProducerSearchResp
 		"developer", "=", []any{"id", "=", resProducer.Results[0].ID},
 	}
 
-	reqVn.Fields = "title, alttitle, released, length_minutes, length_votes, average, rating, votecount, image.sexual, image.violence, image.votecount, image.thumbnail"
+	reqVn.Fields = "id, title, alttitle, released, length_minutes, length_votes, average, rating, votecount, image.sexual, image.violence, image.votecount, image.thumbnail"
 
 	reverse := true
 	reqVn.Reverse = &reverse
