@@ -9,13 +9,13 @@ import (
 
 type (
 	MusicList struct {
-		ID           int    `json:"id"`            // 歌曲ID
-		Name         string `json:"name"`          // 歌曲名稱
-		TokutenCount string `json:"tokuten_count"` // 樣本數
-		AvgTokuten   string `json:"avg_tokuten"`   // 平均分數
-		Category     string `json:"category"`      // 歌曲類型
-		GameName     string `json:"game_name"`     // 對應的遊戲名稱
-		GameDMM      string `json:"game_dmm"`      // 對應的DMM圖片(代號)
+		ID           int     `json:"id"`            // 歌曲ID
+		Name         string  `json:"name"`          // 歌曲名稱
+		TokutenCount int     `json:"tokuten_count"` // 樣本數
+		AvgTokuten   float64 `json:"avg_tokuten"`   // 平均分數
+		Category     string  `json:"category"`      // 歌曲類型
+		GameName     string  `json:"game_name"`     // 對應的遊戲名稱
+		GameDMM      string  `json:"game_dmm"`      // 對應的DMM圖片(代號)
 	}
 
 	Music struct {
@@ -124,8 +124,8 @@ FROM (
         STRING_AGG(DISTINCT gmlist.gamename, ', ') AS game_name,
         STRING_AGG(DISTINCT gmlist.dmm, ', ') AS game_dmm
     FROM filtered_music m
-    LEFT JOIN game_music gm ON gm.music = m.music_id,
-    LEFT JOIN gamelist gmlist ON gmlist.id = gm.game,
+    LEFT JOIN game_music gm ON gm.music = m.music_id
+    LEFT JOIN gamelist gmlist ON gmlist.id = gm.game
     GROUP BY m.music_id,m.musicname,m.tokuten_count,m.avg_tokuten
     ORDER BY tokuten_count DESC NULLS LAST, avg_tokuten DESC NULLS LAST
 ) t;

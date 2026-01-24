@@ -1,5 +1,7 @@
 package service
 
+// 因為資料庫問題，暫時不遷移下來，這邊程式碼放置
+
 import (
 	"github.com/kuro-helper/kurohelper-core/v3/erogs"
 	kurohelperdb "github.com/kuro-helper/kurohelper-db/v3"
