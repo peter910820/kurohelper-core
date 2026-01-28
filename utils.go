@@ -1,10 +1,9 @@
 package kurohelpercore
 
 import (
+	"kurohelper-core/store"
 	"net/url"
 	"strings"
-
-	"github.com/kuro-helper/kurohelper-core/v3/store"
 )
 
 // check if the string is English

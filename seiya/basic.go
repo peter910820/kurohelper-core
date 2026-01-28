@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/kuro-helper/kurohelper-core/v3/store"
+	"kurohelper-core/store"
 
 	"github.com/PuerkitoBio/goquery"
 )

@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	kurohelpercore "github.com/kuro-helper/kurohelper-core/v3"
+	kurohelpercore "kurohelper-core"
 )
 
 type rateLimitStruct struct {

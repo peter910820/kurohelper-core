@@ -9,7 +9,7 @@ import (
 	"golang.org/x/text/encoding/japanese"
 	"golang.org/x/text/transform"
 
-	kurohelpercore "github.com/kuro-helper/kurohelper-core/v3"
+	kurohelpercore "kurohelper-core"
 )
 
 func sendGetRequest() ([]byte, error) {

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	kurohelpercore "github.com/kuro-helper/kurohelper-core/v3"
+	kurohelpercore "kurohelper-core"
 )
 
 type (

@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"strings"
 
-	kurohelpercore "github.com/kuro-helper/kurohelper-core/v3"
+	kurohelpercore "kurohelper-core"
 )
 
 // 使用關鍵字模糊搜尋遊戲

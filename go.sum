@@ -18,8 +18,6 @@ github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.1.5 h1:/o9tlHleP7gOFmsnYNz3RGnqzefHA47wQpKrrdTIwXQ=
 github.com/jinzhu/now v1.1.5/go.mod h1:d3SSVoowX0Lcu0IBviAWJpolVfI5UJVZZ7cO71lE/z8=
-github.com/kuro-helper/kurohelper-db/v3 v3.0.0 h1:3pR7wjHrYdnWLzsgN9T/VhioXlGEa+h4cofUprgrp1w=
-github.com/kuro-helper/kurohelper-db/v3 v3.0.0/go.mod h1:oabF2kyu50JJbQVi/nOq/OQDLPgb7SzpngMxgFTCneo=
 github.com/kuro-helper/kurohelper-proxy v1.0.0 h1:qPvE1seIrxWWIgZqBD7J21sfayHsXw/QEaOJRaoBwYo=
 github.com/kuro-helper/kurohelper-proxy v1.0.0/go.mod h1:bQWinvlZt60sRMauIFjgbYr6zTMgHwYtlw2MGFM7egE=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

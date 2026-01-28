@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	kurohelpercore "github.com/kuro-helper/kurohelper-core/v3"
+	kurohelpercore "kurohelper-core"
 )
 
 func GetProducerByFuzzy(keyword string, companyType string) (*ProducerSearchResponse, error) {

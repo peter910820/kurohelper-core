@@ -6,7 +6,7 @@ import (
 	"os"
 	"sort"
 
-	kurohelpercore "github.com/kuro-helper/kurohelper-core/v3"
+	kurohelpercore "kurohelper-core"
 )
 
 func GetCharacterByFuzzy(keyword string) (*Character, error) {

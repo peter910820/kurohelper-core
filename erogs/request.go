@@ -13,7 +13,8 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 
-	kurohelpercore "github.com/kuro-helper/kurohelper-core/v3"
+	kurohelpercore "kurohelper-core"
+
 	kurohelperproxy "github.com/kuro-helper/kurohelper-proxy"
 )
 
