@@ -28,10 +28,12 @@ func MakeDMMImageURL(dmm string) string {
 	return fmt.Sprintf("https://pics.dmm.co.jp/digital/pcgame/%[1]s/%[1]spl.jpg", dmm)
 }
 
-func buildSearchStringSQL(search string) (string, error) {
+func buildSearchStringSQL(search string) string {
 	search = strings.ReplaceAll(search, "'", "''")
+	search = strings.ReplaceAll(search, "%", "\\%")
+	search = strings.ReplaceAll(search, "_", "\\_")
 	if strings.TrimSpace(search) == "" {
-		return "", kurohelpercore.ErrSearchNoContent
+		return ""
 	}
 
 	result := "%"
@@ -47,5 +49,5 @@ func buildSearchStringSQL(search string) (string, error) {
 			result += string(r) + "%"
 		}
 	}
-	return result, nil
+	return result
 }
