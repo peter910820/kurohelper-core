@@ -3,8 +3,7 @@ package erogs
 import (
 	"encoding/json"
 	"fmt"
-
-	kurohelpercore "kurohelper-core"
+	"strings"
 )
 
 type (
@@ -36,12 +35,9 @@ type (
 	}
 )
 
-func GetBrandByFuzzy(search string) (*Brand, error) {
-	searchJP := kurohelpercore.ZhTwToJp(search)
-	sql, err := buildBrandSQL(search, searchJP, false)
-	if err != nil {
-		return nil, err
-	}
+// Use erogs id search single brand data
+func SearchBrandByID(id int) (*Brand, error) {
+	sql := buildBrandSQL(fmt.Sprintf("WHERE id = '%d'", id))
 
 	jsonText, err := sendPostRequest(sql)
 	if err != nil {
@@ -58,11 +54,24 @@ func GetBrandByFuzzy(search string) (*Brand, error) {
 	return &res, nil
 }
 
-func GetBrandByID(id string) (*Brand, error) {
-	sql, err := buildBrandSQL(id, "", true)
-	if err != nil {
-		return nil, err
+// Use kewords search single brand data
+func SearchBrandByKeyword(keywords []string) (*Brand, error) {
+	if keywords == nil {
+		return nil, nil
 	}
+
+	// pre-build keySQL
+	keySQL := "WHERE "
+	var keywordSQLList []string
+	for _, k := range keywords {
+		formatK := buildSearchStringSQL(k)
+		if strings.TrimSpace(formatK) != "" {
+			keywordSQLList = append(keywordSQLList, fmt.Sprintf("brandname ILIKE '%s'", formatK))
+		}
+	}
+	keySQL += strings.Join(keywordSQLList, " OR")
+
+	sql := buildBrandSQL(keySQL)
 
 	jsonText, err := sendPostRequest(sql)
 	if err != nil {
@@ -79,24 +88,10 @@ func GetBrandByID(id string) (*Brand, error) {
 	return &res, nil
 }
 
-func buildBrandSQL(searchTW string, searchJP string, useID bool) (string, error) {
-	buildString := ""
-	if useID {
-		buildString = fmt.Sprintf("WHERE id = '%s'", searchTW)
-	} else {
-		resultTW, err := buildSearchStringSQL(searchTW)
-		if err != nil {
-			return "", err
-		}
-
-		resultJP, err := buildSearchStringSQL(searchJP)
-		if err != nil {
-			return "", err
-		}
-
-		buildString = fmt.Sprintf("WHERE brandname ILIKE '%s' OR brandname ILIKE '%s'", resultTW, resultJP)
-	}
-
+// build search brand sql
+// Arguments:
+//   - keySQL: A pre-constructed SQL WHERE-clause fragment.
+func buildBrandSQL(keySQL string) string {
 	return fmt.Sprintf(`
 WITH single_brand AS (
     SELECT
@@ -153,5 +148,5 @@ FROM (
         ) AS gamelist
     FROM single_brand A
 ) r;
-`, buildString), nil
+`, keySQL)
 }

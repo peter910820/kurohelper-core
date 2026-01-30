@@ -3,8 +3,7 @@ package erogs
 import (
 	"encoding/json"
 	"fmt"
-
-	kurohelpercore "kurohelper-core"
+	"strings"
 )
 
 type (
@@ -41,12 +40,24 @@ type (
 	}
 )
 
-func GetMusicListByFuzzy(search string) ([]MusicList, error) {
-	searchJP := kurohelpercore.ZhTwToJp(search)
-	sql, err := buildMusicListSQL(search, searchJP)
-	if err != nil {
-		return nil, err
+// Use kewords search music list data
+func SearchMusicListByKeyword(keywords []string) ([]MusicList, error) {
+	if keywords == nil {
+		return nil, nil
 	}
+
+	// pre-build keySQL
+	keySQL := "WHERE "
+	var keywordSQLList []string
+	for _, k := range keywords {
+		formatK := buildSearchStringSQL(k)
+		if strings.TrimSpace(formatK) != "" {
+			keywordSQLList = append(keywordSQLList, fmt.Sprintf("m.name ILIKE '%s'", formatK))
+		}
+	}
+	keySQL += strings.Join(keywordSQLList, " OR")
+
+	sql := buildMusicListSQL(keySQL)
 
 	jsonText, err := sendPostRequest(sql)
 	if err != nil {
@@ -63,15 +74,9 @@ func GetMusicListByFuzzy(search string) ([]MusicList, error) {
 	return res, nil
 }
 
-func GetMusicByFuzzy(search string, idSearch bool) (*Music, error) {
-	searchJP := ""
-	if !idSearch {
-		searchJP = kurohelpercore.ZhTwToJp(search)
-	}
-	sql, err := buildMusicSQL(search, searchJP, idSearch)
-	if err != nil {
-		return nil, err
-	}
+// Use kewords search single music data
+func SearchMusicByID(id int) (*Music, error) {
+	sql := buildMusicSQL(fmt.Sprintf("WHERE m.id = '%d'", id))
 
 	jsonText, err := sendPostRequest(sql)
 	if err != nil {
@@ -88,16 +93,44 @@ func GetMusicByFuzzy(search string, idSearch bool) (*Music, error) {
 	return &res, nil
 }
 
-func buildMusicListSQL(searchTW string, searchJP string) (string, error) {
-	resultTW, err := buildSearchStringSQL(searchTW)
-	if err != nil {
-		return "", err
+// Use kewords search single music data
+func SearchMusicByKeyword(keywords []string) (*Music, error) {
+	if keywords == nil {
+		return nil, nil
 	}
 
-	resultJP, err := buildSearchStringSQL(searchJP)
-	if err != nil {
-		return "", err
+	// pre-build keySQL
+	keySQL := "WHERE "
+	var keywordSQLList []string
+	for _, k := range keywords {
+		formatK := buildSearchStringSQL(k)
+		if strings.TrimSpace(formatK) != "" {
+			keywordSQLList = append(keywordSQLList, fmt.Sprintf("m.name ILIKE '%s'", formatK))
+		}
 	}
+	keySQL += strings.Join(keywordSQLList, " OR")
+
+	sql := buildMusicSQL(keySQL)
+
+	jsonText, err := sendPostRequest(sql)
+	if err != nil {
+		return nil, err
+	}
+
+	var res Music
+	err = json.Unmarshal([]byte(jsonText), &res)
+	if err != nil {
+		fmt.Println(jsonText)
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+// build search music list sql
+// Arguments:
+//   - keySQL: A pre-constructed SQL WHERE-clause fragment.
+func buildMusicListSQL(keySQL string) string {
 	return fmt.Sprintf(`
 WITH filtered_music AS (
     SELECT 
@@ -107,7 +140,7 @@ WITH filtered_music AS (
         COUNT(DISTINCT ut.uid) AS tokuten_count
     FROM musiclist m
     LEFT JOIN usermusic_tokuten ut ON ut.music = m.id
-    WHERE m.name ILIKE '%s' OR m.name ILIKE '%s'
+    %s
     GROUP BY m.id, m.name, m.playtime, m.releasedate
     ORDER BY tokuten_count DESC NULLS LAST, avg_tokuten DESC NULLS LAST
     LIMIT 200
@@ -130,26 +163,13 @@ FROM (
     GROUP BY m.music_id, m.musicname, m.tokuten_count, m.avg_tokuten
     ORDER BY tokuten_count DESC NULLS LAST, avg_tokuten DESC NULLS LAST
 ) t;
-`, resultTW, resultJP), nil
+`, keySQL)
 }
 
-func buildMusicSQL(searchTW string, searchJP string, idSearch bool) (string, error) {
-	searchString := ""
-	if idSearch {
-		idString := searchTW[1:]
-		searchString = fmt.Sprintf("WHERE m.id = %s", idString)
-	} else {
-		resultTW, err := buildSearchStringSQL(searchTW)
-		if err != nil {
-			return "", err
-		}
-
-		resultJP, err := buildSearchStringSQL(searchJP)
-		if err != nil {
-			return "", err
-		}
-		searchString = fmt.Sprintf("WHERE m.name ILIKE '%s' OR m.name ILIKE '%s'", resultTW, resultJP)
-	}
+// build search music sql
+// Arguments:
+//   - keySQL: A pre-constructed SQL WHERE-clause fragment.
+func buildMusicSQL(keySQL string) string {
 	return fmt.Sprintf(`
 WITH filtered_music AS (
     SELECT 
@@ -204,5 +224,5 @@ FROM (
     GROUP BY m.music_id, m.musicname, m.playtime, m.releasedate, m.avg_tokuten, m.tokuten_count
     ORDER BY tokuten_count DESC NULLS LAST, avg_tokuten DESC NULLS LAST
 ) t;
-`, searchString), nil
+`, keySQL)
 }
