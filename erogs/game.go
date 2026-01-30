@@ -3,8 +3,7 @@ package erogs
 import (
 	"encoding/json"
 	"fmt"
-
-	kurohelpercore "kurohelper-core"
+	"strings"
 )
 
 type Game struct {
@@ -46,15 +45,24 @@ type GameList struct {
 	TimeBeforeUnderstandingFunMedian string `json:"time_before_understanding_fun_median"`
 }
 
-func GetGameByFuzzy(search string, idSearch bool) (*Game, error) {
-	searchJP := ""
-	if !idSearch {
-		searchJP = kurohelpercore.ZhTwToJp(search)
+// Use kewords search single game data
+func SearchGameByKeyword(keywords []string) (*Game, error) {
+	if keywords == nil {
+		return nil, nil
 	}
-	sql, err := buildFuzzySearchGameSQL(search, searchJP, idSearch)
-	if err != nil {
-		return nil, err
+
+	// pre-build keySQL
+	keySQL := "WHERE "
+	var keywordSQLList []string
+	for _, k := range keywords {
+		formatK := buildSearchStringSQL(k)
+		if strings.TrimSpace(formatK) != "" {
+			keywordSQLList = append(keywordSQLList, fmt.Sprintf("gamename ILIKE '%s'", formatK))
+		}
 	}
+	keySQL += strings.Join(keywordSQLList, " OR")
+
+	sql := buildGameSQL(keySQL)
 
 	jsonText, err := sendPostRequest(sql)
 	if err != nil {
@@ -70,12 +78,42 @@ func GetGameByFuzzy(search string, idSearch bool) (*Game, error) {
 	return &res, nil
 }
 
-func GetGameListByFuzzy(search string) (*[]GameList, error) {
-	searchJP := kurohelpercore.ZhTwToJp(search)
-	sql, err := buildFuzzySearchGameListSQL(search, searchJP)
+// Use kewords search single game data
+func SearchGameByID(id string) (*Game, error) {
+	sql := buildGameSQL(fmt.Sprintf("WHERE id = '%s'", id))
+
+	jsonText, err := sendPostRequest(sql)
 	if err != nil {
 		return nil, err
 	}
+
+	var res Game
+	err = json.Unmarshal([]byte(jsonText), &res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+// Use kewords search game list data
+func SearchGameListByKeyword(keywords []string) ([]GameList, error) {
+	if keywords == nil {
+		return nil, nil
+	}
+
+	// pre-build keySQL
+	keySQL := "WHERE "
+	var keywordSQLList []string
+	for _, k := range keywords {
+		formatK := buildSearchStringSQL(k)
+		if strings.TrimSpace(formatK) != "" {
+			keywordSQLList = append(keywordSQLList, fmt.Sprintf("gamename ILIKE '%s'", formatK))
+		}
+	}
+	keySQL += strings.Join(keywordSQLList, " OR")
+
+	sql := buildGameListSQL(keySQL)
 
 	jsonText, err := sendPostRequest(sql)
 	if err != nil {
@@ -89,26 +127,13 @@ func GetGameListByFuzzy(search string) (*[]GameList, error) {
 		return nil, err
 	}
 
-	return &res, nil
+	return res, nil
 }
 
-func buildFuzzySearchGameSQL(searchTW string, searchJP string, idSearch bool) (string, error) {
-	searchString := ""
-	if idSearch {
-		idString := searchTW[1:]
-		searchString = fmt.Sprintf("WHERE id = %s", idString)
-	} else {
-		resultTW, err := buildSearchStringSQL(searchTW)
-		if err != nil {
-			return "", err
-		}
-
-		resultJP, err := buildSearchStringSQL(searchJP)
-		if err != nil {
-			return "", err
-		}
-		searchString = fmt.Sprintf("WHERE gamename ILIKE '%s' OR gamename ILIKE '%s'", resultTW, resultJP)
-	}
+// build search game sql
+// Arguments:
+//   - keySQL: A pre-constructed SQL WHERE-clause fragment.
+func buildGameSQL(keySQL string) string {
 	return fmt.Sprintf(`
 WITH filtered_games AS (
     SELECT *
@@ -162,19 +187,13 @@ FROM (
         LIMIT 1
     ) j ON TRUE
 ) t;
-`, searchString), nil
+`, keySQL)
 }
 
-func buildFuzzySearchGameListSQL(searchTW string, searchJP string) (string, error) {
-	resultTW, err := buildSearchStringSQL(searchTW)
-	if err != nil {
-		return "", err
-	}
-
-	resultJP, err := buildSearchStringSQL(searchJP)
-	if err != nil {
-		return "", err
-	}
+// build search game list sql
+// Arguments:
+//   - keySQL: A pre-constructed SQL WHERE-clause fragment.
+func buildGameListSQL(keySQL string) string {
 	return fmt.Sprintf(`
 SELECT json_agg(row_to_json(t))
 FROM (
@@ -191,5 +210,5 @@ FROM (
     ORDER BY count2 DESC NULLS LAST, median DESC NULLS LAST
     LIMIT 200
 ) t;
-`, resultTW, resultJP), nil
+`, keySQL)
 }
