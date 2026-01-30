@@ -3,8 +3,7 @@ package erogs
 import (
 	"encoding/json"
 	"fmt"
-
-	kurohelpercore "kurohelper-core"
+	"strings"
 )
 
 type Character struct {
@@ -34,15 +33,24 @@ type CharacterList struct {
 	Model    string `json:"model"`
 }
 
-func GetCharacterByFuzzy(search string, idSearch bool) (*Character, error) {
-	searchJP := ""
-	if !idSearch {
-		searchJP = kurohelpercore.ZhTwToJp(search)
+// Use kewords search single character data
+func SearchCharacterByKeyword(keywords []string) (*Character, error) {
+	if keywords == nil {
+		return nil, nil
 	}
-	sql, err := buildFuzzySearchCharacterSQL(search, searchJP, idSearch)
-	if err != nil {
-		return nil, err
+
+	// pre-build keySQL
+	keySQL := "WHERE "
+	var keywordSQLList []string
+	for _, k := range keywords {
+		formatK := buildSearchStringSQL(k)
+		if strings.TrimSpace(formatK) != "" {
+			keywordSQLList = append(keywordSQLList, fmt.Sprintf("ch.name ILIKE '%s'", formatK))
+		}
 	}
+	keySQL += strings.Join(keywordSQLList, " OR")
+
+	sql := buildCharacterSQL(keySQL)
 
 	jsonText, err := sendPostRequest(sql)
 	if err != nil {
@@ -58,12 +66,42 @@ func GetCharacterByFuzzy(search string, idSearch bool) (*Character, error) {
 	return &res, nil
 }
 
-func GetCharacterListByFuzzy(search string) (*[]CharacterList, error) {
-	searchJP := kurohelpercore.ZhTwToJp(search)
-	sql, err := buildFuzzySearchCharacterListSQL(search, searchJP)
+// Use kewords search single character data
+func SearchCharacterByID(id string) (*Character, error) {
+	sql := buildCreatorSQL(fmt.Sprintf("WHERE ch.id = '%s'", id))
+
+	jsonText, err := sendPostRequest(sql)
 	if err != nil {
 		return nil, err
 	}
+
+	var res Character
+	err = json.Unmarshal([]byte(jsonText), &res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+// Use kewords search character list data
+func SearchCharacterListByKeyword(keywords []string) ([]CharacterList, error) {
+	if keywords == nil {
+		return nil, nil
+	}
+
+	// pre-build keySQL
+	keySQL := "WHERE "
+	var keywordSQLList []string
+	for _, k := range keywords {
+		formatK := buildSearchStringSQL(k)
+		if strings.TrimSpace(formatK) != "" {
+			keywordSQLList = append(keywordSQLList, fmt.Sprintf("ch.name ILIKE '%s'", formatK))
+		}
+	}
+	keySQL += strings.Join(keywordSQLList, " OR")
+
+	sql := buildCharacterSQL(keySQL)
 
 	jsonText, err := sendPostRequest(sql)
 	if err != nil {
@@ -77,26 +115,13 @@ func GetCharacterListByFuzzy(search string) (*[]CharacterList, error) {
 		return nil, err
 	}
 
-	return &res, nil
+	return res, nil
 }
 
-func buildFuzzySearchCharacterSQL(searchTW string, searchJP string, idSearch bool) (string, error) {
-	searchString := ""
-	if idSearch {
-		idString := searchTW[1:]
-		searchString = fmt.Sprintf("WHERE ch.id = %s", idString)
-	} else {
-		resultTW, err := buildSearchStringSQL(searchTW)
-		if err != nil {
-			return "", err
-		}
-
-		resultJP, err := buildSearchStringSQL(searchJP)
-		if err != nil {
-			return "", err
-		}
-		searchString = fmt.Sprintf("WHERE ch.name ILIKE '%s' OR ch.name ILIKE '%s'", resultTW, resultJP)
-	}
+// build search character sql
+// Arguments:
+//   - keySQL: A pre-constructed SQL WHERE-clause fragment.
+func buildCharacterSQL(keySQL string) string {
 	return fmt.Sprintf(`
 WITH filtered_character AS (
     SELECT 
@@ -149,19 +174,13 @@ FROM (
     LEFT JOIN appearance_actor a ON a.character = ch.char_id
     LEFT JOIN createrlist cr ON cr.id = a.actor
 ) t;
-`, searchString), nil
+`, keySQL)
 }
 
-func buildFuzzySearchCharacterListSQL(searchTW string, searchJP string) (string, error) {
-	resultTW, err := buildSearchStringSQL(searchTW)
-	if err != nil {
-		return "", err
-	}
-
-	resultJP, err := buildSearchStringSQL(searchJP)
-	if err != nil {
-		return "", err
-	}
+// build search character list sql
+// Arguments:
+//   - keySQL: A pre-constructed SQL WHERE-clause fragment.
+func buildCharacterListSQL(keySQL string) string {
 	return fmt.Sprintf(`
     SELECT json_agg(row_to_json(t))
     FROM (
@@ -173,9 +192,9 @@ func buildFuzzySearchCharacterListSQL(searchTW string, searchJP string) (string,
         FROM characterlist ch
         LEFT JOIN appearance a ON a.character = ch.id
         LEFT JOIN gamelist g ON g.id = a.game
-        WHERE ch.name ILIKE '%s' OR ch.name ILIKE '%s'
+        %s
         ORDER BY g.count2 DESC NULLS LAST, g.median DESC NULLS LAST
         LIMIT 200
     ) t;
-    `, resultTW, resultJP), nil
+    `, keySQL)
 }
