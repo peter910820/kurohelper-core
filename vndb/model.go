@@ -120,10 +120,18 @@ type GetVnUseIDResponse struct {
 }
 
 type GetVnIDUseListResponse struct {
-	ID         string              `json:"id"`
-	Title      string              `json:"title"`
-	Alttitle   string              `json:"alttitle"`
-	Developers []DeveloperResponse `json:"developers"`
+	ID       string `json:"id"`
+	Title    string `json:"title"`
+	Alttitle string `json:"alttitle"`
+	Image    *struct {
+		Thumbnail string `json:"thumbnail"`
+	} `json:"image"`
+	LengthMinutes *int                `json:"length_minutes"` // 遊戲長度平均(分鐘)
+	LengthVotes   int                 `json:"length_votes"`   // 遊戲長度提交樣本數
+	Average       *float64            `json:"average"`        // 平均分數
+	Rating        *float64            `json:"rating"`         // Bayesian分數
+	VoteCount     int                 `json:"votecount"`      // 分數提交樣本數
+	Developers    []DeveloperResponse `json:"developers"`
 }
 
 // 查詢品牌API

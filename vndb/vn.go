@@ -217,7 +217,7 @@ func GetVnID(keyword string) (*[]GetVnIDUseListResponse, error) {
 	req.Sort = &reqSort
 
 	// 指定要取得的欄位
-	req.Fields = "id, title, alttitle, developers.name, developers.original, developers.aliases"
+	req.Fields = "id, title, alttitle, developers.name, developers.original, developers.aliases, image.thumbnail, average, rating, votecount, length_minutes, length_votes"
 
 	// 設定搜尋條件
 	req.Filters = []any{"search", "=", keyword}
