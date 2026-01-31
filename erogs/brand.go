@@ -69,7 +69,7 @@ func SearchBrandByKeyword(keywords []string) (*Brand, error) {
 			keywordSQLList = append(keywordSQLList, fmt.Sprintf("brandname ILIKE '%s'", formatK))
 		}
 	}
-	keySQL += strings.Join(keywordSQLList, " OR")
+	keySQL += strings.Join(keywordSQLList, " OR ")
 
 	sql := buildBrandSQL(keySQL)
 

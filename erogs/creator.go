@@ -46,7 +46,7 @@ func SearchCreatorListByKeyword(keywords []string) ([]CreatorList, error) {
 			keywordSQLList = append(keywordSQLList, fmt.Sprintf("cr.name ILIKE '%s'", formatK))
 		}
 	}
-	keySQL += strings.Join(keywordSQLList, " OR")
+	keySQL += strings.Join(keywordSQLList, " OR ")
 
 	sql := buildCreatorListSQL(keySQL)
 
@@ -98,7 +98,7 @@ func SearchCreatorByKeyword(keywords []string) (*Creator, error) {
 			keywordSQLList = append(keywordSQLList, fmt.Sprintf("cr.name ILIKE '%s'", formatK))
 		}
 	}
-	keySQL += strings.Join(keywordSQLList, " OR")
+	keySQL += strings.Join(keywordSQLList, " OR ")
 
 	sql := buildCreatorSQL(keySQL)
 

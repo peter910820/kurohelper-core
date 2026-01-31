@@ -55,7 +55,7 @@ func SearchMusicListByKeyword(keywords []string) ([]MusicList, error) {
 			keywordSQLList = append(keywordSQLList, fmt.Sprintf("m.name ILIKE '%s'", formatK))
 		}
 	}
-	keySQL += strings.Join(keywordSQLList, " OR")
+	keySQL += strings.Join(keywordSQLList, " OR ")
 
 	sql := buildMusicListSQL(keySQL)
 
@@ -108,7 +108,7 @@ func SearchMusicByKeyword(keywords []string) (*Music, error) {
 			keywordSQLList = append(keywordSQLList, fmt.Sprintf("m.name ILIKE '%s'", formatK))
 		}
 	}
-	keySQL += strings.Join(keywordSQLList, " OR")
+	keySQL += strings.Join(keywordSQLList, " OR ")
 
 	sql := buildMusicSQL(keySQL)
 

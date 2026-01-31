@@ -60,7 +60,7 @@ func SearchGameListByKeyword(keywords []string) ([]GameList, error) {
 			keywordSQLList = append(keywordSQLList, fmt.Sprintf("gamename ILIKE '%s'", formatK))
 		}
 	}
-	keySQL += strings.Join(keywordSQLList, " OR")
+	keySQL += strings.Join(keywordSQLList, " OR ")
 
 	sql := buildGameListSQL(keySQL)
 
@@ -112,7 +112,7 @@ func SearchGameByKeyword(keywords []string) (*Game, error) {
 			keywordSQLList = append(keywordSQLList, fmt.Sprintf("gamename ILIKE '%s'", formatK))
 		}
 	}
-	keySQL += strings.Join(keywordSQLList, " OR")
+	keySQL += strings.Join(keywordSQLList, " OR ")
 
 	sql := buildGameSQL(keySQL)
 

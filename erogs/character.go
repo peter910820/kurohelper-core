@@ -48,7 +48,7 @@ func SearchCharacterListByKeyword(keywords []string) ([]CharacterList, error) {
 			keywordSQLList = append(keywordSQLList, fmt.Sprintf("ch.name ILIKE '%s'", formatK))
 		}
 	}
-	keySQL += strings.Join(keywordSQLList, " OR")
+	keySQL += strings.Join(keywordSQLList, " OR ")
 
 	sql := buildCharacterSQL(keySQL)
 
@@ -100,7 +100,7 @@ func SearchCharacterByKeyword(keywords []string) (*Character, error) {
 			keywordSQLList = append(keywordSQLList, fmt.Sprintf("ch.name ILIKE '%s'", formatK))
 		}
 	}
-	keySQL += strings.Join(keywordSQLList, " OR")
+	keySQL += strings.Join(keywordSQLList, " OR ")
 
 	sql := buildCharacterSQL(keySQL)
 
