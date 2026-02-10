@@ -24,6 +24,7 @@ type (
 		GameList      []struct {
 			ID       int    `json:"id"`
 			GameName string `json:"gamename"`
+			DMM      string `json:"dmm"` // dmm image
 			Furigana string `json:"furigana"`
 			SellDay  string `json:"sellday"`
 			Model    string `json:"model"`
@@ -134,6 +135,7 @@ FROM (
                 json_build_object(
                     'id', g.id,
                     'gamename', g.gamename,
+					'dmm', g.dmm,
                     'furigana', g.furigana,
                     'sellday', g.sellday,
                     'median', g.median,
