@@ -14,10 +14,12 @@ type Creator struct {
 	Blog            string `json:"blog"`
 	Pixiv           *int   `json:"pixiv"`
 	Games           []struct {
+		ID       int    `json:"id"`
 		Gamename string `json:"gamename"`
 		SellDay  string `json:"sellday"`
 		Median   int    `json:"median"`
 		CountAll int    `json:"count2"`
+		DMM      string `json:"dmm"` // dmm image
 		Shokushu []struct {
 			Shubetu           int    `json:"shubetu"`
 			ShubetuDetail     int    `json:"shubetu_detail"`
@@ -150,10 +152,12 @@ FROM (
             SELECT json_agg(game_data)
             FROM (
                 SELECT
+                    g.id,
                     g.gamename,
                     g.sellday,
                     g.median,
                     g.count2,
+					g.DMM,
                     (
                         SELECT json_agg(
                             json_build_object(
@@ -173,7 +177,7 @@ FROM (
                     WHERE s3.creater = cr.id
                       AND s3.game = g.id
                 )
-                GROUP BY g.id, g.gamename, g.sellday, g.median, g.count2
+                GROUP BY g.id, g.gamename, g.sellday, g.median, g.count2, g.DMM
             ) AS game_data
         ) AS games
     FROM createrlist cr
