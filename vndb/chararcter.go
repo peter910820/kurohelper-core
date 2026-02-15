@@ -233,12 +233,12 @@ func GetCharacterDetail(characterID string, resCharacters *BasicResponse[Charact
 }
 
 // 取得VNDB角色列表(模糊搜尋)
-func GetCharacterListByFuzzy(keyword string) (*[]CharacterSearchResponse, error) {
+func GetCharacterListByFuzzy(keyword string) ([]CharacterSearchResponse, error) {
 	reqCharacter := VndbCreate()
 	reqCharacter.Filters = []any{"search", "=", keyword}
 	reqCharacterSort := "searchrank"
 	reqCharacter.Sort = &reqCharacterSort
-	basicFields := "id, name, original"
+	basicFields := "id, name, original, image.url"
 	vnsFields := "vns.title, vns.alttitle, vns.spoiler, vns.role, vns.titles.title, vns.titles.main"
 	allFields := []string{
 		basicFields,
@@ -259,7 +259,7 @@ func GetCharacterListByFuzzy(keyword string) (*[]CharacterSearchResponse, error)
 		return nil, err
 	}
 
-	return &resCharacters.Results, nil
+	return resCharacters.Results, nil
 }
 
 func ConvertBBCodeToMarkdown(text string) string {
