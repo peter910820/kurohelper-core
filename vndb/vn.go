@@ -208,7 +208,7 @@ func GetRandomVN() (*BasicResponse[GetVnUseIDResponse], error) {
 }
 
 // 使用關鍵字搜尋遊戲ID列表(用於列表顯示)
-func GetVnID(keyword string) (*[]GetVnIDUseListResponse, error) {
+func GetVnID(keyword string) ([]GetVnIDUseListResponse, error) {
 	// 建立基本request結構
 	req := VndbCreate()
 
@@ -242,5 +242,5 @@ func GetVnID(keyword string) (*[]GetVnIDUseListResponse, error) {
 		return nil, kurohelpercore.ErrSearchNoContent
 	}
 
-	return &res.Results, nil
+	return res.Results, nil
 }
