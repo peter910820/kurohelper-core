@@ -4,11 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 
 	kurohelpercore "kurohelper-core"
-
-	"github.com/sirupsen/logrus"
 )
 
 // 做一次重試(取新Token)的版本
@@ -16,7 +15,7 @@ func sendWithRetry(apiRoute string) ([]byte, error) {
 	r, err := sendGetRequest(apiRoute)
 	if err != nil {
 		if errors.Is(err, ErrInvalidAccessToken) {
-			logrus.Warnf("%s, refreshing and retrying...", err)
+			slog.Warn(fmt.Sprintf("%s, refreshing and retrying...", err))
 			err = GetToken()
 			if err != nil {
 				return nil, err

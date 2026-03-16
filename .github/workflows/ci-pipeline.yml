@@ -28,3 +28,4 @@ jobs:
     uses: kuro-helper/.github/.github/workflows/go-build.yml@main
     with:
       use_kurohelperdb: 'main'
+      use_kurohelperproxy: 'main'

@@ -15,7 +15,7 @@ import (
 
 	kurohelpercore "kurohelper-core"
 
-	kurohelperproxy "github.com/kuro-helper/kurohelper-proxy"
+	kurohelperproxy "kurohelper-proxy"
 )
 
 type rateLimitStruct struct {
