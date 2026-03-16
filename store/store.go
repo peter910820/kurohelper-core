@@ -2,8 +2,8 @@ package store
 
 import (
 	kurohelperdb "kurohelper-db"
-
-	"github.com/sirupsen/logrus"
+	"log/slog"
+	"os"
 )
 
 var (
@@ -14,7 +14,8 @@ var (
 func InitZhtwToJp() {
 	entries, err := kurohelperdb.GetAllZhtwToJp()
 	if err != nil {
-		logrus.Fatal(err)
+		slog.Error(err.Error())
+		os.Exit(1)
 	}
 
 	// 轉換
@@ -33,7 +34,8 @@ func InitZhtwToJp() {
 func InitSeiyaCorrespond() {
 	entries, err := kurohelperdb.GetAllSeiyaCorrespond()
 	if err != nil {
-		logrus.Fatal(err)
+		slog.Error(err.Error())
+		os.Exit(1)
 	}
 
 	// 轉換
