@@ -10,212 +10,171 @@ import (
 	kurohelpercore "kurohelper-core"
 )
 
-// 取得VNDB角色(模糊搜尋)
+var characterFields = []string{
+	// basic fields
+	"id, name, original, aliases, description, image.url, blood_type, height, weight, bust, waist, hips, cup, age, birthday, sex, gender",
+	// vns fields
+	"vns.title, vns.alttitle, vns.spoiler, vns.role, vns.titles.title, vns.titles.main",
+}
+
+var (
+	reURL         = regexp.MustCompile(`\[url=(.+?)\](.+?)\[/url\]`)
+	reSpoiler     = regexp.MustCompile(`(?s)\[spoiler\](.+?)\[/spoiler\]`)
+	reCharacterID = regexp.MustCompile(`\[(.+?)\]\(/c(\d+?)\)`)
+)
+
+// 取得 VNDB 角色（模糊搜尋）
 func GetCharacterByFuzzy(keyword string) (*CharacterSearchResponse, error) {
-	reqCharacter := VndbCreate() // 建立基本request結構
-
-	// 依照關鍵字的相關度排序
-	reqCharacterSort := "searchrank"
-	reqCharacter.Sort = &reqCharacterSort
-
-	// 限制回傳一筆結果
-	reqCharacterResults := 1
-	reqCharacter.Results = &reqCharacterResults
-
-	// 指定要取得的欄位
-	basicFields := "id, name, original, aliases, description, image.url, blood_type, height, weight, bust, waist, hips, cup, age, birthday, sex, gender"
-	vnsFields := "vns.title, vns.alttitle, vns.spoiler, vns.role, vns.titles.title, vns.titles.main"
-	allFields := []string{
-		basicFields,
-		vnsFields,
-	}
-	reqCharacter.Fields = strings.Join(allFields, ", ")
-
-	// 設定搜尋條件
-	reqCharacter.Filters = []any{"search", "=", keyword}
-
-	jsonCharacter, err := json.Marshal(reqCharacter)
-	if err != nil {
-		return nil, err
-	}
-
-	r, err := sendPostRequest("/character", jsonCharacter)
-	if err != nil {
-		return nil, err
-	}
-
-	var resCharacters BasicResponse[CharacterSearchResponse]
-	err = json.Unmarshal(r, &resCharacters)
-	if err != nil {
-		return nil, err
-	}
-	if len(resCharacters.Results) == 0 {
-		return nil, kurohelpercore.ErrSearchNoContent
-	}
-
-	// 取得角色詳細資料
-	err = GetCharacterDetail(resCharacters.Results[0].ID, &resCharacters)
-	if err != nil {
-		return nil, err
-	}
-	return &resCharacters.Results[0], nil
+	sort := "searchrank"
+	return fetchCharacter([]any{"search", "=", keyword}, sort)
 }
 
-// 用VNDB角色ID取得VNDB角色
-func GetCharacterByID(keyword string) (*CharacterSearchResponse, error) {
-	reqCharacter := VndbCreate() // 建立基本request結構
-
-	// 不需要排序
-	reqCharacterSort := ""
-	reqCharacter.Sort = &reqCharacterSort
-
-	// 限制回傳一筆結果
-	reqCharacterResults := 1
-	reqCharacter.Results = &reqCharacterResults
-
-	// 指定要取得的欄位
-	basicFields := "id, name, original, aliases, description, image.url, blood_type, height, weight, bust, waist, hips, cup, age, birthday, sex, gender"
-	vnsFields := "vns.title, vns.alttitle, vns.spoiler, vns.role, vns.titles.title, vns.titles.main"
-	allFields := []string{
-		basicFields,
-		vnsFields,
-	}
-	reqCharacter.Fields = strings.Join(allFields, ", ")
-
-	// 設定搜尋條件
-	reqCharacter.Filters = []any{"id", "=", keyword}
-
-	jsonCharacter, err := json.Marshal(reqCharacter)
-	if err != nil {
-		return nil, err
-	}
-
-	r, err := sendPostRequest("/character", jsonCharacter)
-	if err != nil {
-		return nil, err
-	}
-
-	var resCharacters BasicResponse[CharacterSearchResponse]
-	err = json.Unmarshal(r, &resCharacters)
-	if err != nil {
-		return nil, err
-	}
-	if len(resCharacters.Results) == 0 {
-		return nil, kurohelpercore.ErrSearchNoContent
-	}
-
-	// 取得角色詳細資料
-	err = GetCharacterDetail(resCharacters.Results[0].ID, &resCharacters)
-	if err != nil {
-		return nil, err
-	}
-	return &resCharacters.Results[0], nil
+// 用 VNDB 角色 ID 取得角色
+func GetCharacterByID(id string) (*CharacterSearchResponse, error) {
+	return fetchCharacter([]any{"id", "=", id}, "")
 }
 
-// 取得VNDB隨機角色
+// 取得 VNDB 隨機角色
 func GetRandomCharacter(opt string) (*CharacterSearchResponse, error) {
-	reqCharacter := VndbCreate() // 建立基本request結構
-
-	// 不需要排序
-	reqCharacterSort := ""
-	reqCharacter.Sort = &reqCharacterSort
-
-	// 限制回傳一筆結果
-	reqCharacterResults := 1
-	reqCharacter.Results = &reqCharacterResults
-
-	// 根據角色身分過濾結果
-	reqCharacter.Filters = []any{"and", []any{"vn", "=", []any{"and", []any{"votecount", ">=", "30"}, []any{"rating", ">=", "70"}}}}
-	switch opt {
-	case "":
-		fallthrough
-	case "1":
-		reqCharacter.Filters = append(reqCharacter.Filters, []any{"or", []any{"role", "=", "main"}, []any{"role", "=", "primary"}}) // 主角
-	case "2":
-		reqCharacter.Filters = append(reqCharacter.Filters, []any{"or", []any{"role", "=", "side"}, []any{"role", "=", "appear"}}) // 配角
-	}
-
-	// 指定要取得的欄位
-	basicFields := "id, name, original, aliases, description, image.url, blood_type, height, weight, bust, waist, hips, cup, age, birthday, sex, gender"
-	vnsFields := "vns.title, vns.alttitle, vns.spoiler, vns.role, vns.titles.title, vns.titles.main"
-	allFields := []string{
-		basicFields,
-		vnsFields,
-	}
-	reqCharacter.Fields = strings.Join(allFields, ", ")
-
-	// 設定搜尋條件
-	resStat, err := GetStats() // 獲取角色id總數
+	resStat, err := GetStats()
 	if err != nil {
 		return nil, err
 	}
-	var resCharacters BasicResponse[CharacterSearchResponse]
-	var randomCharacterID string
-	for range 3 { // 最多嘗試3次
-		randomCharacterID = fmt.Sprintf("c%d", rand.Intn(resStat.Chars))
-		reqCharacter.Filters = append(reqCharacter.Filters, []any{"and", []any{"id", ">=", randomCharacterID}, []any{"vn", "=", []any{"votecount", ">=", "100"}}})
 
-		jsonCharacter, err := json.Marshal(reqCharacter)
+	baseFilter := []any{"vn", "=", []any{"and", []any{"votecount", ">=", "30"}, []any{"rating", ">=", "70"}}}
+	var roleFilter []any
+	switch opt {
+	case "", "1":
+		roleFilter = []any{"or", []any{"role", "=", "main"}, []any{"role", "=", "primary"}}
+	case "2":
+		roleFilter = []any{"or", []any{"role", "=", "side"}, []any{"role", "=", "appear"}}
+	default:
+		roleFilter = []any{"or", []any{"role", "=", "main"}, []any{"role", "=", "primary"}}
+	}
+
+	for range 3 {
+		randomID := fmt.Sprintf("c%d", rand.Intn(resStat.Chars))
+		idFilter := []any{"and", []any{"id", ">=", randomID}, []any{"vn", "=", []any{"votecount", ">=", "100"}}}
+		filters := []any{"and", baseFilter, roleFilter, idFilter}
+
+		req := VndbCreate()
+		req.Sort = ptr("")
+		reqResults := 1
+		req.Results = &reqResults
+		req.Fields = strings.Join(characterFields, ", ")
+		req.Filters = filters
+
+		body, err := json.Marshal(req)
+		if err != nil {
+			return nil, err
+		}
+		r, err := sendPostRequest("/character", body)
 		if err != nil {
 			return nil, err
 		}
 
-		r, err := sendPostRequest("/character", jsonCharacter)
-		if err != nil {
+		var res BasicResponse[CharacterSearchResponse]
+		if err = json.Unmarshal(r, &res); err != nil {
 			return nil, err
 		}
+		if len(res.Results) == 0 {
+			continue
+		}
 
-		err = json.Unmarshal(r, &resCharacters)
-		if err != nil {
+		if err = getCharacterDetail(res.Results[0].ID, &res); err != nil {
 			return nil, err
 		}
-
-		if len(resCharacters.Results) != 0 {
-			// 取得角色詳細資料
-			err = GetCharacterDetail(resCharacters.Results[0].ID, &resCharacters)
-			if err != nil {
-				return nil, err
-			}
-
-			return &resCharacters.Results[0], nil
-		}
+		return &res.Results[0], nil
 	}
 	return nil, kurohelpercore.ErrSearchNoContent
 }
 
-func GetCharacterDetail(characterID string, resCharacters *BasicResponse[CharacterSearchResponse]) error {
-	reqVn := VndbCreate()
+// 取得 VNDB 角色列表（模糊搜尋）
+func GetCharacterListByFuzzy(keyword string) ([]CharacterSearchResponse, error) {
+	req := VndbCreate()
+	req.Filters = []any{"search", "=", keyword}
+	sort := "searchrank"
+	req.Sort = &sort
+	req.Fields = strings.Join(characterFields, ", ")
 
-	characterIDFilter := []any{"id", "=", characterID}
-	reqVn.Filters = []any{"character", "=", characterIDFilter}
-	reqVn.Fields = "va.staff.name, va.staff.original, va.character.id"
+	body, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	r, err := sendPostRequest("/character", body)
+	if err != nil {
+		return nil, err
+	}
 
-	jsonVn, err := json.Marshal(reqVn)
+	var res BasicResponse[CharacterSearchResponse]
+	if err = json.Unmarshal(r, &res); err != nil {
+		return nil, err
+	}
+	return res.Results, nil
+}
+
+// 內部共用：依 filters 查詢單一角色並取得詳細資料
+func fetchCharacter(filters []any, sort string) (*CharacterSearchResponse, error) {
+	req := VndbCreate()
+	req.Sort = &sort
+	reqResults := 1
+	req.Results = &reqResults
+	req.Fields = strings.Join(characterFields, ", ")
+	req.Filters = filters
+
+	body, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	r, err := sendPostRequest("/character", body)
+	if err != nil {
+		return nil, err
+	}
+
+	var res BasicResponse[CharacterSearchResponse]
+	if err = json.Unmarshal(r, &res); err != nil {
+		return nil, err
+	}
+	if len(res.Results) == 0 {
+		return nil, kurohelpercore.ErrSearchNoContent
+	}
+
+	if err = getCharacterDetail(res.Results[0].ID, &res); err != nil {
+		return nil, err
+	}
+	return &res.Results[0], nil
+}
+
+// 取得角色 VA 資訊並寫入 resCharacters(會額外呼叫 /vn API)
+func getCharacterDetail(characterID string, resCharacters *BasicResponse[CharacterSearchResponse]) error {
+	req := VndbCreate()
+	req.Filters = []any{"character", "=", []any{"id", "=", characterID}}
+	req.Fields = "va.staff.name, va.staff.original, va.character.id"
+
+	body, err := json.Marshal(req)
 	if err != nil {
 		return err
 	}
-
-	r, err := sendPostRequest("/vn", jsonVn)
+	r, err := sendPostRequest("/vn", body)
 	if err != nil {
 		return err
 	}
 
 	var resVn BasicResponse[GetVnUseIDResponse]
-	err = json.Unmarshal(r, &resVn)
-	if err != nil {
+	if err = json.Unmarshal(r, &resVn); err != nil {
 		return err
 	}
 
-	var vasMap = make(map[string]bool) // 去重
-	var vas []string
+	vasMap := make(map[string]struct{})
 	for _, vn := range resVn.Results {
 		for _, va := range vn.Va {
-			if va.Character.ID == characterID {
-				if va.Staff.Original != "" {
-					vasMap[va.Staff.Original] = true
-				} else {
-					vasMap[va.Staff.Name] = true
-				}
+			if va.Character.ID != characterID {
+				continue
+			}
+			if va.Staff.Original != "" {
+				vasMap[va.Staff.Original] = struct{}{}
+			} else {
+				vasMap[va.Staff.Name] = struct{}{}
 			}
 		}
 	}
@@ -223,60 +182,21 @@ func GetCharacterDetail(characterID string, resCharacters *BasicResponse[Charact
 	if len(vasMap) == 0 {
 		resCharacters.Results[0].Vas = []string{"未收錄"}
 	} else {
+		vas := make([]string, 0, len(vasMap))
 		for va := range vasMap {
 			vas = append(vas, va)
 		}
 		resCharacters.Results[0].Vas = vas
 	}
-
 	return nil
 }
 
-// 取得VNDB角色列表(模糊搜尋)
-func GetCharacterListByFuzzy(keyword string) ([]CharacterSearchResponse, error) {
-	reqCharacter := VndbCreate()
-	reqCharacter.Filters = []any{"search", "=", keyword}
-	reqCharacterSort := "searchrank"
-	reqCharacter.Sort = &reqCharacterSort
-	basicFields := "id, name, original, image.url"
-	vnsFields := "vns.title, vns.alttitle, vns.spoiler, vns.role, vns.titles.title, vns.titles.main"
-	allFields := []string{
-		basicFields,
-		vnsFields,
-	}
-	reqCharacter.Fields = strings.Join(allFields, ", ")
-	jsonCharacter, err := json.Marshal(reqCharacter)
-	if err != nil {
-		return nil, err
-	}
-	r, err := sendPostRequest("/character", jsonCharacter)
-	if err != nil {
-		return nil, err
-	}
-	var resCharacters BasicResponse[CharacterSearchResponse]
-	err = json.Unmarshal(r, &resCharacters)
-	if err != nil {
-		return nil, err
-	}
-
-	return resCharacters.Results, nil
-}
-
+// 將 BBCode 轉為 Markdown
 func ConvertBBCodeToMarkdown(text string) string {
-	// 1. 處理配對的 URL 標籤
-	reURL := regexp.MustCompile(`\[url=(.+?)\](.+?)\[/url\]`)
 	text = reURL.ReplaceAllString(text, "[$2]($1)")
-
-	// 2. 處理配對的 spoiler 標籤（支援多行）
-	reSpoiler := regexp.MustCompile(`(?s)\[spoiler\](.+?)\[/spoiler\]`)
 	text = reSpoiler.ReplaceAllString(text, "||$1||")
-
-	// 3. 清理未配對的殘留標籤
 	text = strings.ReplaceAll(text, "[spoiler]", "")
 	text = strings.ReplaceAll(text, "[/spoiler]", "")
-
-	// 4. 將角色ID轉換成連結[Sara](/c40662)
-	reCharacterID := regexp.MustCompile(`\[(.+?)\]\(/c(\d+?)\)`)
 	text = reCharacterID.ReplaceAllString(text, "[$1](https://vndb.org/c$2)")
 	return strings.TrimSpace(text)
 }
