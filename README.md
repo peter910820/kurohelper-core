@@ -1,5 +1,8 @@
 # kurohelper-core
 
+> [!IMPORTANT]
+> 專案已整合(2026/04/03)，請閱讀新專案: [https://github.com/kuro-helper/kurohelper-service](https://github.com/kuro-helper/kurohelper-service)
+
 KuroHelper 底層核心專案
 
 - 核心專案有一些直接存取 env 的行為，在使用前請先確保啟動端有設置特定 env，避免使用上受影響(可參考[kurohelper/.env.example](https://github.com/kuro-helper/kurohelper/blob/main/.env.example))
